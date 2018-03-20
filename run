@@ -1,0 +1,108 @@
+#! /bin/bash
+#
+# Run Gannet Gear
+# Built to flywheel-v0 spec.
+#
+
+# TODO: Add support for t1 metadata
+
+CONTAINER="[scitran/gannet]"
+echo -e "$CONTAINER  Initiated"
+
+# Configure the ENV
+export LD_LIBRARY_PATH=/opt/mcr/v90/runtime/glnxa64:/opt/mcr/v90/bin/glnxa64:/opt/mcr/v90/sys/os/glnxa64:$LD_LIBRARY_PATH
+export XAPPLRESDIR=/opt/mcr/v90/X11/app-defaults
+
+###############################################################################
+# Configure paths
+
+FLYWHEEL_BASE=/flywheel/v0
+OUTPUT_DIR=$FLYWHEEL_BASE/output
+INPUT_DIR=$FLYWHEEL_BASE/input
+CONFIG_FILE=$FLYWHEEL_BASE/config.json
+MANIFEST_FILE=$FLYWHEEL_BASE/manifest.json
+PFILE_DIR=$INPUT_DIR/pfile
+T1_DIR=$INPUT_DIR/t1w_dicom_archive
+
+# Make the directories
+WORK_DIR=/Gannet
+mkdir ${WORK_DIR}
+
+# T1 Directory #TODO: Add support for this. Need to unzip, etc.
+if [[ ! -d "${T1_DIR}" ]]; then
+  T1_DIR=''
+fi
+
+
+###############################################################################
+# Handle input files
+
+P_FILE=$(find ${PFILE_DIR} -type f -name "*.7.zip" | head -1)
+
+# If we find the zipped p-file we
+if [ -n "${P_FILE}" ]; then
+  unzip -q ${P_FILE} -d ${WORK_DIR}
+
+  # It's Gunzipped
+  GZ_FILE=$(find ${WORK_DIR} -type f -name "*.7.gz" | head -1)
+  gunzip "${GZ_FILE}"
+
+  # Find the input file from extracted archive
+  P_FILE=$(find ${WORK_DIR} -type f -name "*.7" | head -1)
+
+else
+  # We assume the p-file was already unzipped
+  P_FILE=$(find ${PFILE_DIR} -type f -name "*.7" | head -1)
+fi
+
+# If we can't find it, we error out
+if [[ -z "${P_FILE}" ]]; then
+  echo -e "$CONTAINER  No valid p-files could be found!"
+  exit 1
+fi
+
+
+##############################################################################
+# Parse configuration
+
+if [[ -f $CONFIG_FILE ]]; then
+  eval $(jq -r '.config | to_entries[] | "config_\(.key)=\(.value)"' $CONFIG_FILE)
+else
+  CONFIG_FILE=$MANIFEST_FILE
+  eval $(jq -r '.config | to_entries[] | "config_\(.key)=\(.value.default)"' $CONFIG_FILE)
+fi
+
+
+##############################################################################
+# Run Gannet
+
+echo -e "$CONTAINER  Starting Gannet..."
+cd $OUTPUT_DIR
+run_Gannet ${OUTPUT_DIR} "${P_FILE}" "${config_metabolite}" "${T1_DIR}"
+
+# Check status code and die
+if [[ $? != 0 ]]; then
+  echo -e "$CONTAINER  Problem encountered during GannetRun"
+  exit 1
+fi
+
+
+##############################################################################
+# Get a list of the files in the output directory
+
+outputs=$(find $OUTPUT_DIR/* -maxdepth 0 -type f )
+
+# If outputs exist go home happy
+if [[ -z $outputs ]]; then
+  echo "$CONTAINER  FAILED: No results found in output directory... Exiting"
+  exit 1
+else
+  # Set permissions for outputs (prevent root only r/w)
+  chmod -R 777 $OUTPUT_DIR
+
+  # End
+  echo -e "$CONTAINER  Wrote: `ls ${OUTPUT_DIR}`"
+  echo -e "$CONTAINER  Done!"
+fi
+
+exit 0
