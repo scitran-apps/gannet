@@ -9,8 +9,8 @@ MAINTAINER Michael Perry <lmperry@stanford.edu>
 RUN apt-get update && apt-get install -y jq
 
 # ADD the Matlab Stand-Alone (MSA) into the container.
-ADD https://github.com/huawu02/Gannet_bin/raw/v2.1/GannetRun /bin
-ADD https://github.com/huawu02/Gannet_bin/raw/v2.1/run_Gannet.sh /bin/run_Gannet
+ADD https://github.com/huawu02/Gannet_bin/raw/v3.0/GannetRun /bin
+ADD https://github.com/huawu02/Gannet_bin/raw/v3.0/run_Gannet.sh /bin/run_Gannet
 
 # Ensure that the executable files are executable
 RUN chmod +x /bin/*
