@@ -5,7 +5,7 @@ FROM flywheel/matlab-mcr:v90
 
 MAINTAINER Michael Perry <lmperry@stanford.edu>
 
-# Install XVFB and other dependencies
+# Install dependencies
 RUN apt-get update && apt-get install -y jq
 
 # ADD the Matlab Stand-Alone (MSA) into the container.
