@@ -4,15 +4,38 @@
   "description": "Gannet is a software package designed for the analysis of edited magnetic resonance spectroscopy (MRS) data. Gannet runs in Matlab and is available as code rather than executables, empowering users to make local changes. Gannet is designed to run without user intervention, to remove operator variance from the quantification of edited MRS data. This Gear uses a compiled version from huawu02/gannet, which is modified to support latest generation GE P-Files, and is executed using the Matlab Compiler Runtime.",
   "maintainer": "Michael Perry <lmperry@stanford.edu>",
   "author": "Richard Edden, et. al",
-  "url": "http://www.gabamrs.com/",
-  "source": "https://github.com/scitran-apps/gannet",
+  "url": "https://github.com/scitran-apps/gannet",
+  "source": "http://www.gabamrs.com/",
   "license": "Other",
   "flywheel": {
     "suite": "GANNET"
   },
   "version": "0.1.6_3.0",
   "custom": {
-    "docker-image": "scitran/gannet:0.1.6_3.0"
+    "docker-image": "scitran/gannet:0.1.6_3.0",
+    "gear-builder": {
+      "category": "analysis"
+    },
+    "flywheel": {
+      "classification": {
+        "species": [
+          ""
+        ],
+        "organ": [
+          ""
+        ],
+        "therapeutic_area": [
+          ""
+        ],
+        "modality": [
+          ""
+        ],
+        "function": [
+          ""
+        ]
+      },
+      "suite": ""
+    }
   },
   "inputs": {
     "pfile": {
