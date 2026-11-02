@@ -12,9 +12,9 @@
   },
   "version": "0.1.6_3.0",
   "custom": {
-    "docker-image": "scitran/gannet:0.1.6_3.0",
     "gear-builder": {
-      "category": "analysis"
+      "category": "analysis",
+      "image": "scitran/gannet:0.1.6_3.0"
     },
     "flywheel": {
       "classification": {
